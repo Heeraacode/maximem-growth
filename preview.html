@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vity Referral Modal - A/B Test Variants Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #fff;
+            padding: 40px 24px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(40, 40, 40, 0.4) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            position: relative;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 8px 16px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.5);
+            font-size: 15px;
+        }
+
+        /* Variant selector */
+        .variant-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .variant-tab {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.6);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .variant-tab:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+        }
+
+        .variant-tab.active {
+            background: #f5f0e8;
+            border-color: #f5f0e8;
+            color: #0d0d0d;
+        }
+
+        /* Modal preview area */
+        .preview-area {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 48px;
+        }
+
+        /* Vity Modal Styles (matching the userscript) */
+        .vity-modal {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            background: #0d0d0d;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px) scale(0.95); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        .vity-variant-badge {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 100px;
+            letter-spacing: 0.5px;
+        }
+
+        .vity-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .vity-logo-icon {
+            width: 52px;
+            height: 52px;
+            margin-bottom: 16px;
+        }
+        
+        .vity-logo-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .vity-title {
+            color: #ffffff;
+            font-size: 26px;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .vity-desc {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .vity-reward {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .vity-reward-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .vity-reward-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .vity-btn-primary {
+            width: 100%;
+            padding: 15px 24px;
+            border: none;
+            border-radius: 14px;
+            background: #f5f0e8;
+            color: #0d0d0d;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .vity-btn-primary:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(245, 240, 232, 0.2);
+        }
+        
+        .vity-btn-primary:active { transform: translateY(0); }
+        .vity-btn-primary svg { width: 18px; height: 18px; }
+
+        .vity-btn-secondary {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .vity-btn-secondary:hover { color: rgba(255, 255, 255, 0.7); }
+
+        .vity-close {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            width: 34px;
+            height: 34px;
+            border: none;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .vity-close:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .vity-close svg { width: 18px; height: 18px; }
+
+        .vity-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        
+        .vity-footer svg {
+            width: 13px;
+            height: 13px;
+            color: rgba(255, 255, 255, 0.25);
+        }
+        
+        .vity-footer span {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 11px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Toast */
+        .vity-toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #0d0d0d;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #ffffff;
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.35s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+        
+        .vity-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .vity-toast svg {
+            width: 18px;
+            height: 18px;
+            color: #22c55e;
+        }
+
+        /* Info cards */
+        .info-section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .info-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card p {
+            color: rgba(255,255,255,0.5);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+        }
+
+        .footer a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="badge">Growth Experiment Demo</div>
+        <h1>Vity Referral Modal - A/B Variants</h1>
+        <p class="subtitle">Click a variant to preview. Click the CTA to test copy-to-clipboard.</p>
+    </header>
+
+    <div class="variant-tabs">
+        <button class="variant-tab active" onclick="showVariant('A')">A: Emotional</button>
+        <button class="variant-tab" onclick="showVariant('B')">B: Value-First</button>
+        <button class="variant-tab" onclick="showVariant('C')">C: Social Proof</button>
+        <button class="variant-tab" onclick="showVariant('D')">D: Scarcity</button>
+    </div>
+
+    <div class="preview-area">
+        <div class="vity-modal" id="modalPreview">
+            <!-- Modal content injected by JS -->
+        </div>
+    </div>
+
+    <div class="vity-toast" id="vityToast">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span id="toastText">Link copied! Share on X or Discord</span>
+    </div>
+
+    <div class="info-section">
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>🎯 Trigger Logic</h3>
+                <p>Modal appears after 3 messages in chat, capturing the "wow moment" when Vity's context injection delivers visible value.</p>
+            </div>
+            <div class="info-card">
+                <h3>📊 Test Hypothesis</h3>
+                <p>We hypothesize Variant B (Value-First) will win because it leads with tangible ROI: time saved.</p>
+            </div>
+            <div class="info-card">
+                <h3>🔒 Privacy Aligned</h3>
+                <p>All copy reinforces Maximem's ZDR (Zero Data Retention) positioning. No dark patterns.</p>
+            </div>
+            <div class="info-card">
+                <h3>⌨️ Test Shortcuts</h3>
+                <p><strong>Ctrl+Shift+M</strong> - Trigger modal<br><strong>Ctrl+Shift+V</strong> - Cycle variants</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Growth Engineer Application Demo by <a href="#">@capyheer</a></p>
+        <p style="margin-top: 8px;">Built for Gaurav @ Maximem AI</p>
+    </footer>
+
+    <script>
+        const variants = {
+            A: {
+                name: 'Emotional',
+                title: 'Your AI Remembered',
+                subtitle: 'Your Private Memory Vault made this moment seamless. Share with a friend.',
+                cta: 'Get Referral Link',
+                reward: '+1 GB Vault Space for both'
+            },
+            B: {
+                name: 'Value-First',
+                title: 'You Just Saved 5 Minutes',
+                subtitle: 'Vity auto-injected your context. No more copy-paste repetition.',
+                cta: 'Share & Get +1GB Free',
+                reward: 'Unlock bonus storage instantly'
+            },
+            C: {
+                name: 'Social Proof',
+                title: '12,847 Users Share Daily',
+                subtitle: 'Join the privacy-first AI memory movement.',
+                cta: 'Get Your Invite Link',
+                reward: 'Both you & friend get rewards'
+            },
+            D: {
+                name: 'Scarcity',
+                title: 'Beta Referral Bonus',
+                subtitle: 'Early users get 2x vault space. Limited time offer.',
+                cta: 'Claim My Referral Link',
+                reward: '2x storage for beta referrers'
+            }
+        };
+
+        let currentVariant = 'A';
+
+        function renderModal(variantKey) {
+            const v = variants[variantKey];
+            return `
+                <div class="vity-variant-badge">Variant ${variantKey}: ${v.name}</div>
+                <button class="vity-close" onclick="showToast('Modal closed')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+                
+                <div class="vity-logo">
+                    <div class="vity-logo-icon">
+                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M50 5L93.3 27.5V72.5L50 95L6.7 72.5V27.5L50 5Z" stroke="white" stroke-width="3" fill="none"/>
+                            <path d="M50 25L72.5 37.5V62.5L50 75L27.5 62.5V37.5L50 25Z" stroke="white" stroke-width="3" fill="none"/>
+                            <circle cx="50" cy="50" r="8" fill="white"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="vity-title">${v.title}</div>
+                <div class="vity-desc">${v.subtitle}</div>
+                
+                <div class="vity-reward">
+                    <div class="vity-reward-icon">🎁</div>
+                    <div class="vity-reward-text">${v.reward}</div>
+                </div>
+                
+                <button class="vity-btn-primary" onclick="copyLink()">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/>
+                    </svg>
+                    ${v.cta}
+                </button>
+                <button class="vity-btn-secondary" onclick="showToast('Maybe next time!')">Maybe later</button>
+                
+                <div class="vity-footer">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                    </svg>
+                    <span>Privacy-first · ZDR Compliant · maximem.ai</span>
+                </div>
+            `;
+        }
+
+        function showVariant(key) {
+            currentVariant = key;
+            document.getElementById('modalPreview').innerHTML = renderModal(key);
+            
+            // Update tabs
+            document.querySelectorAll('.variant-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.includes(key + ':')) {
+                    tab.classList.add('active');
+                }
+            });
+        }
+
+        function copyLink() {
+            const refLink = 'https://app.maximem.ai/signup?ref=demo123';
+            const shareText = `Stop explaining yourself to AI - @maximem_ai Vity is your Private Memory Vault. Join beta: ${refLink} #Vity #AIMemory`;
+            
+            navigator.clipboard.writeText(shareText).then(() => {
+                showToast('Link copied! Share on X or Discord');
+            }).catch(() => {
+                showToast('Copy failed - try again');
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('vityToast');
+            document.getElementById('toastText').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Initialize with variant A
+        showVariant('A');
+    </script>
+</body>
+</html>

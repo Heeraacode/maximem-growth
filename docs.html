@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growth Experiment Strategy - Vity Referral Loop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: rgba(255,255,255,0.85);
+            line-height: 1.7;
+        }
+
+        /* Nav */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #fff;
+        }
+
+        .nav-logo svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        .nav-logo span {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .nav-back {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-back:hover { color: #fff; }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 100px 24px 60px;
+        }
+
+        /* Header */
+        .doc-header {
+            margin-bottom: 48px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .doc-badge {
+            display: inline-block;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 6px 14px;
+            border-radius: 100px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .doc-meta {
+            color: rgba(255,255,255,0.4);
+            font-size: 14px;
+        }
+
+        .doc-meta strong {
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Content styles */
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 48px;
+            margin-bottom: 20px;
+            letter-spacing: -0.3px;
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            margin-top: 32px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        ul, ol {
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Blockquote */
+        blockquote {
+            background: rgba(255,255,255,0.02);
+            border-left: 3px solid #f5f0e8;
+            padding: 20px 24px;
+            margin: 24px 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        blockquote p {
+            margin: 0;
+            font-style: italic;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Code */
+        code {
+            background: rgba(255,255,255,0.06);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        pre {
+            background: #0d0d0d;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        th {
+            color: rgba(255,255,255,0.5);
+            font-weight: 500;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Highlight box */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            color: #60a5fa;
+        }
+
+        /* Section divider */
+        hr {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 48px 0;
+        }
+
+        /* Footer */
+        .doc-footer {
+            margin-top: 60px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            text-align: center;
+        }
+
+        .doc-footer p {
+            color: rgba(255,255,255,0.3);
+            font-size: 13px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="./" class="nav-logo">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 5L93.3 27.5V72.5L50 95L6.7 72.5V27.5L50 5Z" stroke="white" stroke-width="4" fill="none"/>
+                <path d="M50 25L72.5 37.5V62.5L50 75L27.5 62.5V37.5L50 25Z" stroke="white" stroke-width="4" fill="none"/>
+                <circle cx="50" cy="50" r="8" fill="white"/>
+            </svg>
+            <span>Vity Growth</span>
+        </a>
+        <a href="./" class="nav-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Overview
+        </a>
+    </nav>
+
+    <div class="container">
+        <header class="doc-header">
+            <div class="doc-badge">Strategy Document</div>
+            <h1>🚀 Vity Referral Loop - Growth Experiment Proposal</h1>
+            <p class="doc-meta">
+                <strong>Prepared by:</strong> Heeraa (@capyheer)<br>
+                <strong>For:</strong> Gaurav Dadhich, Founder @ Maximem AI<br>
+                <strong>Role:</strong> Growth Engineer Application
+            </p>
+        </header>
+
+        <section>
+            <h2>Executive Summary</h2>
+            <p>This is a working prototype demonstrating a <strong>product-led referral loop</strong> for Maximem Vity. The experiment captures users at their "wow moment" - when Vity's context injection delivers visible value - and converts that delight into viral sharing.</p>
+            
+            <p><strong>Key deliverables in this package:</strong></p>
+            <ul>
+                <li>✅ Working userscript (Tampermonkey) with cross-platform detection</li>
+                <li>✅ A/B test variants for copy and design optimization</li>
+                <li>✅ Analytics event hooks for funnel measurement</li>
+                <li>✅ Referral dashboard concept (React)</li>
+                <li>✅ This growth strategy document</li>
+            </ul>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>🎯 The Growth Thesis</h2>
+            
+            <h3>Problem</h3>
+            <p>Vity's core value - "Your AI remembers you" - is invisible until experienced. Users don't know what they're missing until context injection saves them from repeating themselves.</p>
+            
+            <h3>Opportunity</h3>
+            <p>The moment Vity successfully recalls context is a <strong>peak emotional moment</strong>. Users think: "Wow, it actually remembered!" This is the highest-intent moment to ask for a referral.</p>
+            
+            <blockquote>
+                <p><strong>Hypothesis:</strong> If we prompt users to share immediately after a successful context recall (detected via 3+ message exchanges), we can achieve a 5-15% referral click rate and 2-3% viral coefficient.</p>
+            </blockquote>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>🔬 Experiment Design</h2>
+            
+            <h3>Trigger Logic</h3>
+            <pre><code>USER SENDS MESSAGE → Vity injects context → AI responds with personalization
+                                                      ↓
+                              User realizes "it remembered me" (WOW MOMENT)
+                                                      ↓
+                                    After 3rd message: Show referral prompt</code></pre>
+            
+            <p><strong>Why 3 messages?</strong></p>
+            <ul>
+                <li>Message 1: User asks something</li>
+                <li>Message 2: AI responds with Vity-injected context</li>
+                <li>Message 3: User confirms value ("yes, that's right" or continues naturally)</li>
+            </ul>
+            <p>This 3-message threshold correlates with successful context utilization.</p>
+
+            <h3>Targeting Rules</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Condition</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>First 3 messages in session</td>
+                        <td>Show modal</td>
+                    </tr>
+                    <tr>
+                        <td>Already shown this session</td>
+                        <td>Suppress (localStorage)</td>
+                    </tr>
+                    <tr>
+                        <td>User dismissed previously</td>
+                        <td>Wait 7 days before retry</td>
+                    </tr>
+                    <tr>
+                        <td>User clicked "Get Link"</td>
+                        <td>Never show again (converted)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>📊 Metrics & Tracking</h2>
+            
+            <h3>Primary Metrics (North Stars)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Definition</th>
+                        <th>Target</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Referral Click Rate</strong></td>
+                        <td>Users who click "Get Link" / Users who see modal</td>
+                        <td>8-12%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Share Completion Rate</strong></td>
+                        <td>Users who actually share / Users who copied link</td>
+                        <td>30-40%</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Viral Coefficient (K)</strong></td>
+                        <td>New signups from referrals / Total referrers</td>
+                        <td>0.15-0.25</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Event Schema</h3>
+            <pre><code>// Proposed event structure for Mixpanel/Amplitude
+{
+  event: 'vity_referral_modal_shown',
+  properties: {
+    platform: 'chatgpt.com',
+    trigger_message_count: 3,
+    session_duration_seconds: 245,
+    user_tier: 'free',
+    experiment_variant: 'A'
+  }
+}</code></pre>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>🧪 A/B Test Variants</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variant</th>
+                        <th>Name</th>
+                        <th>Headline</th>
+                        <th>CTA</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>A</td>
+                        <td>Emotional</td>
+                        <td>"Your AI Remembered"</td>
+                        <td>"Get Referral Link"</td>
+                    </tr>
+                    <tr>
+                        <td>B</td>
+                        <td>Value-First</td>
+                        <td>"You Just Saved 5 Minutes"</td>
+                        <td>"Share & Get +1GB Free"</td>
+                    </tr>
+                    <tr>
+                        <td>C</td>
+                        <td>Social Proof</td>
+                        <td>"12,847 Users Share Daily"</td>
+                        <td>"Get Your Invite Link"</td>
+                    </tr>
+                    <tr>
+                        <td>D</td>
+                        <td>Scarcity</td>
+                        <td>"Beta Referral Bonus"</td>
+                        <td>"Claim My Referral Link"</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Test Plan:</strong> Run each variant for 1 week minimum. Need ~1000 impressions per variant for significance. Primary metric: Referral Click Rate.</p>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>🛡️ Privacy & Trust Considerations</h2>
+            <p>Aligning with Gaurav's ZDR (Zero Data Retention) philosophy:</p>
+            <ol>
+                <li><strong>No tracking without consent</strong> - All analytics are opt-in</li>
+                <li><strong>Session-only detection</strong> - We don't store message content, only count</li>
+                <li><strong>Transparent copy</strong> - Modal explicitly mentions "Privacy-first" and "ZDR Compliant"</li>
+                <li><strong>No dark patterns</strong> - Clear dismiss options, no guilt-tripping</li>
+                <li><strong>User control</strong> - "Don't show again" option respected permanently</li>
+            </ol>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>🔮 Future Iterations</h2>
+            
+            <div class="highlight-box">
+                <h3>Phase 2: Smart Triggers</h3>
+                <ul>
+                    <li>Detect <strong>specific</strong> Vity recall events (not just message count)</li>
+                    <li>Trigger on high-confidence "wow moments" using sentiment analysis</li>
+                    <li>Personalize copy based on platform (ChatGPT vs Claude vs Gemini)</li>
+                </ul>
+            </div>
+
+            <div class="highlight-box">
+                <h3>Phase 3: Referral Program Backend</h3>
+                <ul>
+                    <li>Unique referral codes per user</li>
+                    <li>Real-time reward fulfillment (+1GB vault)</li>
+                    <li>Referral leaderboard for power users</li>
+                    <li>Tiered rewards (3 referrals = Pro trial, 10 = lifetime discount)</li>
+                </ul>
+            </div>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>💡 Why This Demonstrates Growth Engineering</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Skill</th>
+                        <th>How This Project Shows It</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Product Sense</strong></td>
+                        <td>Identified the "wow moment" as optimal trigger point</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Technical Execution</strong></td>
+                        <td>Working cross-platform userscript with DOM observation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Thinking</strong></td>
+                        <td>Defined metrics, events, and A/B test framework</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Brand Alignment</strong></td>
+                        <td>Matched Maximem's dark minimal UI and privacy messaging</td>
+                    </tr>
+                    <tr>
+                        <td><strong>High Agency</strong></td>
+                        <td>Built functional prototype without being asked</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PLG Strategy</strong></td>
+                        <td>Designed viral loop that scales with usage</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <footer class="doc-footer">
+            <p>"Privacy never forgets - and neither should your growth loops."</p>
+        </footer>
+    </div>
+</body>
+</html>

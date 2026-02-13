@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vity Referral Dashboard - Growth Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            min-height: 100vh;
+            background: #0a0a0a;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #fff;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .logo-text span {
+            color: rgba(255,255,255,0.5);
+            font-weight: 400;
+        }
+
+        .header-badge {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 100px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .page-subtitle {
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background: #0d0d0d;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .metric-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value.green { color: #22c55e; }
+        .metric-value.blue { color: #3b82f6; }
+        .metric-value.purple { color: #a855f7; }
+        .metric-value.amber { color: #f59e0b; }
+
+        .metric-change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .metric-change.positive { color: #22c55e; }
+        .metric-change.negative { color: #ef4444; }
+
+        /* Charts section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            background: #0d0d0d;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+
+        /* A/B Test Results */
+        .ab-test-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .ab-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .ab-card {
+            background: #0d0d0d;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .ab-card.winner {
+            border-color: rgba(34, 197, 94, 0.3);
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .ab-card.winner::after {
+            content: '👑 WINNER';
+            position: absolute;
+            top: -10px;
+            right: 16px;
+            background: #22c55e;
+            color: #000;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 100px;
+        }
+
+        .ab-variant {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 4px;
+        }
+
+        .ab-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .ab-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 13px;
+        }
+
+        .ab-stat:last-child { border: none; }
+
+        .ab-stat-label { color: rgba(255,255,255,0.5); }
+        .ab-stat-value { font-weight: 600; }
+
+        /* Event log */
+        .events-section {
+            background: #0d0d0d;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .events-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .event-row {
+            display: grid;
+            grid-template-columns: 140px 200px 1fr 100px;
+            gap: 16px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            font-size: 13px;
+        }
+
+        .event-row.header {
+            color: rgba(255,255,255,0.4);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .event-time { color: rgba(255,255,255,0.4); }
+        
+        .event-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .event-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .event-dot.shown { background: #3b82f6; }
+        .event-dot.copied { background: #22c55e; }
+        .event-dot.dismissed { background: #f59e0b; }
+
+        .event-platform { color: rgba(255,255,255,0.6); }
+        .event-variant { 
+            background: rgba(255,255,255,0.06);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 32px;
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+        }
+
+        .footer a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+        }
+
+        .footer a:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <svg class="logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 5L93.3 27.5V72.5L50 95L6.7 72.5V27.5L50 5Z" stroke="white" stroke-width="3" fill="none"/>
+                <path d="M50 25L72.5 37.5V62.5L50 75L27.5 62.5V37.5L50 25Z" stroke="white" stroke-width="3" fill="none"/>
+                <circle cx="50" cy="50" r="8" fill="white"/>
+            </svg>
+            <span class="logo-text">Maximem <span>Vity</span></span>
+        </div>
+        <div class="header-badge">Growth Experiment Dashboard</div>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Referral Loop Analytics</h1>
+        <p class="page-subtitle">Real-time metrics for the "Wow Moment" referral experiment • Last 7 days</p>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Modal Impressions</div>
+                <div class="metric-value">12,847</div>
+                <div class="metric-change positive">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path d="M7 17l5-5 5 5M7 7l5 5 5-5"/>
+                    </svg>
+                    +23% vs last week
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Referral Click Rate</div>
+                <div class="metric-value green">11.3%</div>
+                <div class="metric-change positive">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path d="M7 17l5-5 5 5M7 7l5 5 5-5"/>
+                    </svg>
+                    +2.1% vs last week
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Successful Referrals</div>
+                <div class="metric-value blue">1,452</div>
+                <div class="metric-change positive">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path d="M7 17l5-5 5 5M7 7l5 5 5-5"/>
+                    </svg>
+                    +31% vs last week
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Viral Coefficient (K)</div>
+                <div class="metric-value purple">0.24</div>
+                <div class="metric-change positive">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path d="M7 17l5-5 5 5M7 7l5 5 5-5"/>
+                    </svg>
+                    +0.08 vs last week
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3 class="chart-title">Referral Funnel Over Time</h3>
+                <div class="chart-container">
+                    <canvas id="funnelChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">Conversions by Platform</h3>
+                <div class="chart-container">
+                    <canvas id="platformChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- A/B Test Results -->
+        <div class="ab-test-section">
+            <h2 class="section-title">A/B Test Results - Modal Variants</h2>
+            <div class="ab-grid">
+                <div class="ab-card">
+                    <div class="ab-variant">Variant A</div>
+                    <div class="ab-name">Emotional</div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Impressions</span>
+                        <span class="ab-stat-value">3,214</span>
+                    </div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Click Rate</span>
+                        <span class="ab-stat-value">9.8%</span>
+                    </div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Conversions</span>
+                        <span class="ab-stat-value">315</span>
+                    </div>
+                </div>
+                <div class="ab-card winner">
+                    <div class="ab-variant">Variant B</div>
+                    <div class="ab-name">Value-First</div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Impressions</span>
+                        <span class="ab-stat-value">3,198</span>
+                    </div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Click Rate</span>
+                        <span class="ab-stat-value" style="color: #22c55e;">14.2%</span>
+                    </div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Conversions</span>
+                        <span class="ab-stat-value">454</span>
+                    </div>
+                </div>
+                <div class="ab-card">
+                    <div class="ab-variant">Variant C</div>
+                    <div class="ab-name">Social Proof</div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Impressions</span>
+                        <span class="ab-stat-value">3,221</span>
+                    </div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Click Rate</span>
+                        <span class="ab-stat-value">10.5%</span>
+                    </div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Conversions</span>
+                        <span class="ab-stat-value">338</span>
+                    </div>
+                </div>
+                <div class="ab-card">
+                    <div class="ab-variant">Variant D</div>
+                    <div class="ab-name">Scarcity</div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Impressions</span>
+                        <span class="ab-stat-value">3,214</span>
+                    </div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Click Rate</span>
+                        <span class="ab-stat-value">10.7%</span>
+                    </div>
+                    <div class="ab-stat">
+                        <span class="ab-stat-label">Conversions</span>
+                        <span class="ab-stat-value">345</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Event Log -->
+        <div class="events-section">
+            <div class="events-header">
+                <h3 class="chart-title">Live Event Stream</h3>
+                <span style="color: rgba(255,255,255,0.4); font-size: 12px;">Showing last 10 events</span>
+            </div>
+            <div class="event-row header">
+                <span>Timestamp</span>
+                <span>Event</span>
+                <span>Platform</span>
+                <span>Variant</span>
+            </div>
+            <div class="event-row">
+                <span class="event-time">12:34:21 PM</span>
+                <span class="event-type"><span class="event-dot copied"></span> Link Copied</span>
+                <span class="event-platform">chatgpt.com</span>
+                <span class="event-variant">B: Value-First</span>
+            </div>
+            <div class="event-row">
+                <span class="event-time">12:33:58 PM</span>
+                <span class="event-type"><span class="event-dot shown"></span> Modal Shown</span>
+                <span class="event-platform">claude.ai</span>
+                <span class="event-variant">A: Emotional</span>
+            </div>
+            <div class="event-row">
+                <span class="event-time">12:33:12 PM</span>
+                <span class="event-type"><span class="event-dot dismissed"></span> Dismissed</span>
+                <span class="event-platform">gemini.google.com</span>
+                <span class="event-variant">C: Social Proof</span>
+            </div>
+            <div class="event-row">
+                <span class="event-time">12:32:45 PM</span>
+                <span class="event-type"><span class="event-dot copied"></span> Link Copied</span>
+                <span class="event-platform">chatgpt.com</span>
+                <span class="event-variant">B: Value-First</span>
+            </div>
+            <div class="event-row">
+                <span class="event-time">12:32:01 PM</span>
+                <span class="event-type"><span class="event-dot shown"></span> Modal Shown</span>
+                <span class="event-platform">perplexity.ai</span>
+                <span class="event-variant">D: Scarcity</span>
+            </div>
+            <div class="event-row">
+                <span class="event-time">12:31:33 PM</span>
+                <span class="event-type"><span class="event-dot copied"></span> Link Copied</span>
+                <span class="event-platform">claude.ai</span>
+                <span class="event-variant">B: Value-First</span>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Vity Referral Experiment Dashboard - Growth Engineer Demo by <a href="#">@capyheer</a></p>
+        <p style="margin-top: 8px;">Built for Maximem AI · Privacy-first · ZDR Compliant</p>
+    </footer>
+
+    <script>
+        // Funnel Chart
+        const funnelCtx = document.getElementById('funnelChart').getContext('2d');
+        new Chart(funnelCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [
+                    {
+                        label: 'Impressions',
+                        data: [1650, 1820, 1790, 1950, 2100, 1780, 1757],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Clicks',
+                        data: [165, 210, 198, 245, 270, 195, 169],
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Conversions',
+                        data: [82, 105, 94, 122, 140, 98, 85],
+                        borderColor: '#a855f7',
+                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: 'rgba(255,255,255,0.6)', padding: 20 }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        ticks: { color: 'rgba(255,255,255,0.4)' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        ticks: { color: 'rgba(255,255,255,0.4)' }
+                    }
+                }
+            }
+        });
+
+        // Platform Chart
+        const platformCtx = document.getElementById('platformChart').getContext('2d');
+        new Chart(platformCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['ChatGPT', 'Claude', 'Gemini', 'Perplexity', 'Other'],
+                datasets: [{
+                    data: [42, 28, 15, 10, 5],
+                    backgroundColor: [
+                        '#22c55e',
+                        '#3b82f6',
+                        '#f59e0b',
+                        '#a855f7',
+                        'rgba(255,255,255,0.1)'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: 'rgba(255,255,255,0.6)', padding: 16 }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    </script>
+</body>
+</html>
